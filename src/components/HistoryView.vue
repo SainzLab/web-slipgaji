@@ -172,20 +172,17 @@ import SalaryDetailModal from './SalaryDetailModal.vue';
 
 const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
 
-// --- SEARCH & FILTER ---
 const searchQuery = ref('');
 const selectedYear = ref('All');
-const isLoading = ref(false); // State Loading
+const isLoading = ref(false); 
 
 const uniqueYears = computed(() => {
   const years = salaryHistory.map(item => item.month.split(' ')[1]);
   return [...new Set(years)].sort((a, b) => b - a);
 });
 
-// Watcher untuk memicu animasi loading saat filter berubah
 watch([searchQuery, selectedYear], () => {
   isLoading.value = true;
-  // Simulasi delay API (500ms)
   setTimeout(() => {
     isLoading.value = false;
   }, 500);
@@ -206,7 +203,6 @@ const resetFilter = () => {
   selectedYear.value = 'All';
 };
 
-// --- MODAL ---
 const isModalOpen = ref(false);
 const selectedItem = ref(null);
 

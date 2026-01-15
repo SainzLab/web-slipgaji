@@ -140,10 +140,8 @@ onMounted(() => {
   isFetching.value = true;
   setTimeout(() => {
     isFetching.value = false;
-  }, 700); // Simulasi Loading 0.7 detik
+  }, 700); 
 });
-
-// --- HELPER FUNCTIONS (Mapping Data SIPD Lengkap) ---
 
 const getIncomeGaji = (data) => ({
   "Gaji Pokok": data.gaji.pokok,
@@ -153,7 +151,6 @@ const getIncomeGaji = (data) => ({
   "Tunj. Fungsional Umum": data.gaji.tunj_fungsional_umum,
   "Tunj. Beras": data.gaji.tunj_beras,
   "Tunj. PPh": data.gaji.tunj_pph,
-  "Tunj. Khusus Papua": data.gaji.tunj_khusus_papua,
   "Pembulatan": data.gaji.pembulatan,
   "Tunj. Jaminan Kesehatan": data.gaji.tunj_bpjs_kes,
   "Tunj. Jaminan Kecelakaan": data.gaji.tunj_jkk,

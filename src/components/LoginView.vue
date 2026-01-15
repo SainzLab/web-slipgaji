@@ -101,7 +101,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { currentSalary } from '../mocks/salaryData.js'; // Import data pegawai
+import { currentSalary } from '../mocks/salaryData.js';
 
 const emit = defineEmits(['login-success']);
 
@@ -118,21 +118,14 @@ const handleLogin = () => {
   isLoading.value = true;
   errorMessage.value = '';
 
-  // Simulasi Delay Server (1.5 detik)
   setTimeout(() => {
     
-    // 1. Ambil NIP dari data dummy dan hilangkan spasinya
-    // (Contoh: "19970311 202012 1 004" menjadi "199703112020121004")
     const validNip = currentSalary.pegawai.nip.replace(/\s/g, '');
-    
-    // 2. Password Dummy (Kita set 'admin' atau '123456')
     const validPassword = 'admin';
 
-    // LOGIC VALIDASI SEDERHANA
-    // User harus memasukkan NIP yang benar ATAU memasukkan '123456' (sebagai backdoor dev)
     if ((form.nip === validNip || form.nip === '123456') && form.password === validPassword) {
        isLoading.value = false;
-       emit('login-success'); // Login Sukses -> Kirim sinyal ke App.vue
+       emit('login-success'); 
     } else {
        isLoading.value = false;
        errorMessage.value = `Login Gagal. Coba NIP: ${validNip} dan Password: admin`;

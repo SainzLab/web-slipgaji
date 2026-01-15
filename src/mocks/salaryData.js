@@ -6,13 +6,13 @@ export const currentSalary = {
     nama: "FATHURRACHMAN ABDUL MALIK",
     nip: "19970311 202012 1 004",
     jabatan: "PRANATA KOMPUTER PERTAMA",
-    golongan: "III/a", // Golongan 3A
-    unit_kerja: "Dinas Komunikasi dan Informatika", // Default (bisa disesuaikan)
+    golongan: "III/a",
+    unit_kerja: "Dinas Komunikasi dan Informatika",
     status_kawin: "Kawin",
     jumlah_anak: 1
   },
 
-  // --- DATA GAJI (REAL DATA SIPD) ---
+  // --- DATA GAJI (SUMBER: SIPD GAJI) ---
   gaji: {
     // PENDAPATAN
     pokok: 2964000,
@@ -24,34 +24,32 @@ export const currentSalary = {
     tunj_pph: 0,
     pembulatan: 31,
     tunj_khusus_papua: 0,
-    // Tunjangan BPJS/Jaminan (Pemerintah)
     tunj_bpjs_kes: 154387, 
     tunj_jkk: 7114,
     tunj_jkm: 21341,
     tunj_tapera: 0,
     tunj_pensiun: 0,
-    tunj_jht: 0, // Di data SIPD tidak menambah pendapatan (dipotong dari gapok)
+    tunj_jht: 0,
     
-    // POTONGAN
+    // POTONGAN SIPD
     potongan_iwp: 38597,
     potongan_pph21: 0,
     potongan_zakat: 0,
     potongan_bulog: 0,
-    // Potongan BPJS/Jaminan
     potongan_bpjs_kes: 154387,
     potongan_jkk: 7114,
     potongan_jkm: 21341,
     potongan_tapera: 0,
     potongan_pensiun: 0,
-    potongan_jht: 265574, // Ada nilai potongannya
+    potongan_jht: 265574,
 
-    // TOTAL
+    // TOTAL SIPD
     jumlah_kotor: 4259813, 
     jumlah_potongan: 487013,
-    jumlah_bersih: 3772800
+    jumlah_bersih: 3772800 // Ditransfer dari SIPD (sebelum pot bank/lainnya)
   },
 
-  // --- DATA TPP (REAL DATA SIPD) ---
+  // --- DATA TPP (SUMBER: SIPD TPP) ---
   tpp: {
     // PENDAPATAN
     beban_kerja: 773934,
@@ -60,19 +58,18 @@ export const currentSalary = {
     kelangkaan_profesi: 0,
     prestasi_kerja: 1160901,
     tunj_pph: 0,
-    tunj_bpjs_kes: 132697, // Masuk dalam Total TPP
+    tunj_bpjs_kes: 132697,
     tunj_jkk: 0,
     tunj_jkm: 0,
     tunj_tapera: 0,
     tunj_pensiun: 0,
     tunj_jht: 0,
 
-    // POTONGAN
+    // POTONGAN SIPD
     potongan_iwp: 33174,
     potongan_pph21: 75772,
     potongan_zakat: 0,
     potongan_bulog: 0,
-    // Potongan BPJS/Jaminan (Counterpart)
     potongan_bpjs_kes: 132697,
     potongan_jkk: 0,
     potongan_jkm: 0,
@@ -80,29 +77,95 @@ export const currentSalary = {
     potongan_pensiun: 0,
     potongan_jht: 0,
 
-    // TOTAL
+    // TOTAL SIPD
     jumlah_kotor: 3450121, 
     jumlah_potongan: 241643, 
-    jumlah_bersih: 3208478
+    jumlah_bersih: 3208478 // Ditransfer dari SIPD (sebelum pot bank/lainnya)
   },
 
-  // TOTAL FINAL (Gaji Bersih + TPP Bersih)
-  take_home_pay: 6981278
+  // --- POTONGAN EKSTERNAL (SUMBER: FILE POTONGAN MANUAL) ---
+  potongan_eksternal: {
+    // Dari File: Potongan Gaji.xlsx
+    gaji: {
+      koperasi: 0,
+      korpri: 5000,
+      dharma_wanita: 15000,
+      bjb: 0,
+      bjb_syariah: 0,
+      zakat_fitrah: 20000, // Zakat Fitrah + Infak
+      bri: 0,
+      zakat: 0, // Zakat Mal
+      bsm: 0,
+      zakat_profesi: 0,
+      total: 40000 // Total Potongan Eksternal Gaji (5000+15000+20000)
+    },
+    // Dari File: Potongan TPP.xlsx
+    tpp: {
+      bjb: 0,
+      gotroy: 0, // Gotong Royong
+      bpr_otista: 0,
+      bpr_pasar: 0,
+      bendahara: 0,
+      total: 0 // Total Potongan Eksternal TPP
+    }
+  },
+
+  // --- HITUNGAN FINAL ---
+  
+  // 1. Take Home Pay GAJI (Gaji Bersih SIPD - Potongan Eksternal Gaji)
+  // 3.772.800 - 40.000
+  take_home_pay_gaji: 3732800,
+
+  // 2. Take Home Pay TPP (TPP Bersih SIPD - Potongan Eksternal TPP)
+  // 3.208.478 - 0
+  take_home_pay_tpp: 3208478,
+
+  // 3. TOTAL KESELURUHAN (Total yang masuk ke rekening)
+  take_home_pay: 6941278
 };
 
 // --- HELPER UNTUK HISTORY ---
 const generateDetail = (id, month, basicGapok) => {
-  // Clone data currentSalary
+  // Clone data currentSalary agar setiap bulan punya object sendiri
   const data = JSON.parse(JSON.stringify(currentSalary));
   data.id = id;
   data.month = month;
-  // Sedikit variasi dummy untuk bulan lalu (optional)
-  if (id > 1) {
-      data.tpp.prestasi_kerja = 1100000; // Misal prestasi sedikit beda
-      data.tpp.jumlah_kotor = 3389220; 
-      data.tpp.jumlah_bersih = 3147577;
-      data.take_home_pay = data.gaji.jumlah_bersih + data.tpp.jumlah_bersih;
+
+  // --- SIMULASI PERUBAHAN DATA UNTUK BULAN LALU ---
+  
+  // Skenario 1: Desember 2025 (Ada Potongan BJB)
+  if (month.includes("Desember")) {
+      data.potongan_eksternal.gaji.bjb = 500000; // Simulasi: Bulan lalu ada cicilan
+      data.potongan_eksternal.gaji.zakat_fitrah = 0; // Tidak ada zakat fitrah
+      
+      // Recalculate Total Potongan Eksternal Gaji
+      data.potongan_eksternal.gaji.total = 
+          data.potongan_eksternal.gaji.korpri + 
+          data.potongan_eksternal.gaji.dharma_wanita + 
+          500000; // Total 520.000
+
+      // Recalculate THP Gaji
+      data.take_home_pay_gaji = data.gaji.jumlah_bersih - data.potongan_eksternal.gaji.total;
+  } 
+  
+  // Skenario 2: November 2025 (Ada Zakat Mal)
+  else if (month.includes("November")) {
+      data.potongan_eksternal.gaji.zakat = 100000;
+      
+      // Recalculate Total
+      data.potongan_eksternal.gaji.total = 
+          data.potongan_eksternal.gaji.korpri + 
+          data.potongan_eksternal.gaji.dharma_wanita + 
+          data.potongan_eksternal.gaji.zakat_fitrah + 
+          100000; // Total 140.000
+      
+      // Recalculate THP Gaji
+      data.take_home_pay_gaji = data.gaji.jumlah_bersih - data.potongan_eksternal.gaji.total;
   }
+
+  // Recalculate Grand Total (Gaji + TPP)
+  data.take_home_pay = data.take_home_pay_gaji + data.take_home_pay_tpp;
+
   return data;
 };
 
